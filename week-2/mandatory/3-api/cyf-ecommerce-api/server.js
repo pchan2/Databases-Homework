@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
  
 const express = require("express");
 const app = express();
+app.use(express.json());
 
 const { Pool } = require('pg');
 
@@ -155,6 +156,7 @@ app.post("/customers/:customerId/orders", function (req, res) {
         })
 });
 
+// UNCOMMENT LINES 162 - 173 AND COMMENT OUT LINES 180 - 190 TO RUN THIS PUT REQUEST
 /*Add a new PUT endpoint `/customers/:customerId` to update 
 an existing customer (name, address, city and country).*/
 app.put("/customers/:customerId", function (req, res) {
@@ -170,20 +172,17 @@ app.put("/customers/:customerId", function (req, res) {
         .catch((e) => console.error(e));
 });
 
+// SOLUTION WITH MARCIN - to update customer fields as specified
 /*Add a new PUT endpoint `/customers/:customerId` to update 
-an existing customer (address and city).*/
+an existing customer (either name, address, city, country).*/
 app.put("/customers/:customerId", function (req, res) {
     const customerId = req.params.customerId;
-    const newCustomerName = req.body.name;
-    const newCustomerAddress = req.body.address;
-    const newCustomerCity = req.body.city;
-    const newCustomerCountry = req.body.country;
 
     const body = req.body;
     const query = `UPDATE customers SET ${Object.keys(body).map(key => key + "='"+ body[key] + "'").join(",")} WHERE id=${customerId}`
 
     pool
-        .query("UPDATE customers SET name=$1, address=$2, city=$3, country=$4 WHERE id=$5", [newCustomerName, newCustomerAddress, newCustomerCity, newCustomerCountry, customerId])
+        .query(query)
         .then(() => res.send(`Customer ${customerId} updated!`))
         .catch((e) => console.error(e));
 });
